@@ -66,9 +66,9 @@ functionDeclaration returns[FunctionDeclaration functionDeclarationRet]:
 functionArgsDec :
     LPAR (type identifier (COMMA type identifier)*)? RPAR ;
 
-//todo
-functionArguments :
-    (expression (COMMA expression)*)?;
+functionArguments returns[ArrayList<Expression> arg]:
+	{$arg = new ArrayList<>();} // todo shak daram dorost bashe
+    (ef = expression {$arg.add($ef.expRet);} (COMMA es = expression {$arg.add($es.expRet);})*)?;
 
 //todo
 body returns [Statement bodyRet]:
@@ -155,23 +155,29 @@ additiveExpression:
 multiplicativeExpression:
     preUnaryExpression ((op = MULT | op = DIVIDE) preUnaryExpression )*;
 
-//todo
-preUnaryExpression:
-    ((op = NOT | op = MINUS) preUnaryExpression ) | accessExpression;
+preUnaryExpression returns[Expression expRet]:
+    (op = (NOT |MINUS) e = preUnaryExpression)
+    {$expRet = new UnaryExpression($e.expRet,UnaryOperator.valueOf($op.getText()));}
+    | ae = accessExpression {$expRet = $ae.expRet;};
 
-//todo
-accessExpression:
-    otherExpression ((LPAR functionArguments RPAR) | (DOT identifier))*  ((LBRACK expression RBRACK) | (DOT identifier))*;
+accessExpression returns[Expression expRet]:
+    f = otherExpression ((LPAR functionArguments RPAR) | (DOT identifier))* ((LBRACK expression RBRACK) | (DOT identifier))*
+    /*{$expRet = new BinaryExpression($f.expRet,,BinaryOperator.assign);}*/; // todo nemidonam
 
-//todo
-otherExpression:
-    value | identifier | LPAR (functionArguments) RPAR | size | append ;
+otherExpression returns[Expression expRet]:
+    v = value {$expRet = $v.valRet;}
+    | i = identifier {$expRet = $i.identifierRet;}
+    | LPAR (ar = functionArguments) RPAR /*{$expRet = $ar.arg;}*/ //todo nemodonam
+    | s = size /*{$expRet = $s.sizeRet;}*/ // todo bayad exp bashe
+    | a = append /*{$expRet = $a.apRet;}*/; // todo bayad exp bashe
 
+// todo mitone ham stmt bash ham exp
 size returns[ListSizeStmt sizeRet] locals[ListSize ls]:
     SIZE LPAR e = expression RPAR
     {$ls = new ListSize($e.expRet);
      $sizeRet = new ListSizeStmt($ls);};
 
+// todo mitone ham stmt bash ham exp
 append returns[ListAppendStmt apRet] locals[ListAppend la]:
     APPEND LPAR l = expression COMMA r = expression RPAR
     {$la = new ListAppend($l.expRet,$r.expRet);
