@@ -128,7 +128,7 @@ singleStatement :
     | varDecStatement | loopStatement | append | size;
 
 //todo
-expression:
+expression returns[Expression expRet]:
     orExpression (op = ASSIGN expression )? ;
 
 //todo
@@ -167,13 +167,15 @@ accessExpression:
 otherExpression:
     value | identifier | LPAR (functionArguments) RPAR | size | append ;
 
-//todo
-size :
-    SIZE LPAR expression RPAR;
+size returns[ListSizeStmt sizeRet] locals[ListSize ls]:
+    SIZE LPAR e = expression RPAR
+    {$ls = new ListSize($e.expRet);
+     $sizeRet = new ListSizeStmt($ls);};
 
-//todo
-append :
-    APPEND LPAR expression COMMA expression RPAR;
+append returns[ListAppendStmt apRet] locals[ListAppend la]:
+    APPEND LPAR l = expression COMMA r = expression RPAR
+    {$la = new ListAppend($l.expRet,$r.expRet);
+     $apRet = new ListAppendStmt($la);};
 
 value returns[Value valRet]:
     bv = boolValue {$valRet = $bv.boolValRet;}
