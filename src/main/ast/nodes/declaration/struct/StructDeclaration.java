@@ -4,7 +4,6 @@ import main.ast.nodes.declaration.*;
 import main.ast.nodes.expression.*;
 import main.ast.nodes.statement.Statement;
 import main.visitor.IVisitor;
-import java.util.*;
 
 //Line -> STRUCT
 public class StructDeclaration extends Declaration {

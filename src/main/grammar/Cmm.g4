@@ -27,11 +27,16 @@ program returns[Program programRet]:
 
 //todo
 main returns[MainDeclaration mainRet]:
-    MAIN LPAR RPAR body;
+	{$mainRet = new MainDeclaration();}
+    MAIN LPAR RPAR {$mainRet.setLine($MAIN.getLine());}
+    b = body {$mainRet.setBody($b.bodyRet);};
 
 //todo
 structDeclaration returns[StructDeclaration structDeclarationRet]:
-    STRUCT identifier ((BEGIN structBody NEWLINE+ END) | (NEWLINE+ singleStatementStructBody SEMICOLON?)) NEWLINE+;
+	{$structDeclarationRet = new StructDeclaration();}
+    s = STRUCT identifier {$structDeclarationRet.setLine($s.getLine());}
+    ((BEGIN sb = structBody NEWLINE+ END) /*{$structDeclarationRet.setBody($sb.structBodyRet)}*/
+    | (NEWLINE+ singleStatementStructBody SEMICOLON?)) NEWLINE+;
 
 //todo
 singleVarWithGetAndSet :
@@ -42,7 +47,7 @@ singleStatementStructBody :
     varDecStatement | singleVarWithGetAndSet;
 
 //todo
-structBody :
+structBody returns [Statement bodyRet]:
     (NEWLINE+ (singleStatementStructBody SEMICOLON)* singleStatementStructBody SEMICOLON?)+;
 
 //todo
@@ -66,7 +71,7 @@ functionArguments :
     (expression (COMMA expression)*)?;
 
 //todo
-body :
+body returns [Statement bodyRet]:
      (blockStatement | (NEWLINE+ singleStatement (SEMICOLON)?));
 
 //todo
@@ -178,17 +183,22 @@ value :
 boolValue:
     TRUE | FALSE;
 
-//todo
-identifier:
-    IDENTIFIER;
+identifier returns[Identifier identifierRet]:
+    IDENTIFIER {$identifierRet = new Identifier($IDENTIFIER.getText());
+    			$identifierRet.setLine($IDENTIFIER.getLine());};
 
-//todo
-type:
-    INT | BOOL | LIST SHARP type | STRUCT identifier | fptrType;
+type returns[Type typeRet]:
+    INT {$typeRet = new IntType();}
+    | BOOL {$typeRet = new BoolType();}
+    | LIST SHARP t = type {$typeRet = new ListType($t.typeRet);}
+    | STRUCT i = identifier {$typeRet = new StructType($i.identifierRet);}
+    | ft = fptrType {$typeRet = $ft.fptrTypeRet;};
 
-//todo
-fptrType:
-    FPTR LESS_THAN (VOID | (type (COMMA type)*)) ARROW (type | VOID) GREATER_THAN;
+fptrType returns[FptrType fptrTypeRet] locals [ArrayList<Type> list]:
+	{$list = new ArrayList<>();}
+    FPTR LESS_THAN (VOID | (o = type {$list.add($o.typeRet);}(COMMA m = type {$list.add($m.typeRet);})*))
+    ARROW (t = type {$fptrTypeRet = new FptrType($list,$t.typeRet);}
+    | VOID {$fptrTypeRet = new FptrType($list,new VoidType());}) GREATER_THAN;
 
 MAIN: 'main';
 RETURN: 'return';
