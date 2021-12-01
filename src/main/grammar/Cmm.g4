@@ -135,9 +135,9 @@ doWhileLoopStatement returns[LoopStmt loop]:
     {$loop.setCondition($c.expRet);
      $loop.setBody($b.bodyRet);};
 
-//todo
-displayStatement :
-  DISPLAY LPAR expression RPAR;
+displayStatement returns[DisplayStmt display]:
+  DISPLAY LPAR e = expression RPAR
+  {$display = new DisplayStmt($e.expRet);};
 
 //todo
 assignmentStatement :
