@@ -108,17 +108,17 @@ functionCallStmt returns[FunctionCallStmt funcCallRet] locals[Expression exp , F
      | (DOT i = identifier {$exp = new StructAccess($exp, $i.identifierRet);}))*
      (LPAR fa2 = functionArguments {$funcCallRet = new FunctionCallStmt($funcCall);} RPAR);
 
-//todo
-returnStatement :
-    RETURN (expression)?;
+returnStatement returns[ReturnStmt stm]:
+	{$stm = new ReturnStmt();}
+    RETURN (e = expression {$stm.setReturnedExpr($e.expRet);})?;
 
-//todo
-ifStatement :
-    IF expression (loopCondBody | body elseStatement);
+ifStatement returns[ConditionalStmt stm]:
+    IF e = expression {$stm = new ConditionalStmt($e.expRet);}
+    (l = loopCondBody {$stm.setThenBody($l.bodyRet);}
+    | b = body el = elseStatement {$stm.setThenBody($b.bodyRet); $stm.setElseBody($el.stm);});
 
-//todo
-elseStatement :
-     NEWLINE* ELSE loopCondBody;
+elseStatement returns[Statement stm]:
+     NEWLINE* ELSE l = loopCondBody {$stm = $l.bodyRet;};
 
 //todo
 loopStatement :
