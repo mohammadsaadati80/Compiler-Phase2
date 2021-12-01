@@ -81,17 +81,18 @@ functionArguments returns[ExprInPar exp]  locals[ArrayList<Expression> arg]:
     (ef = expression {$arg.add($ef.expRet);} (COMMA es = expression {$arg.add($es.expRet);})*)?
     {$exp = new ExprInPar($arg);};
 
-//todo
-body returns [Statement bodyRet]:
-     (blockStatement | (NEWLINE+ singleStatement (SEMICOLON)?));
+body returns[Statement bodyRet]:
+     (b = blockStatement {$bodyRet = $b.stm;}
+     | (NEWLINE+ s = singleStatement {$bodyRet = $s.stm;} (SEMICOLON)?));
 
-//todo
-loopCondBody :
-     (blockStatement | (NEWLINE+ singleStatement ));
+loopCondBody returns[Statement bodyRet]:
+     (b = blockStatement {$bodyRet = $b.stm;}
+     | (NEWLINE+ s = singleStatement {$bodyRet = $s.stm;}));
 
-//todo
-blockStatement :
-    BEGIN (NEWLINE+ (singleStatement SEMICOLON)* singleStatement (SEMICOLON)?)+ NEWLINE+ END;
+blockStatement returns[BlockStmt stm]:
+	{$stm = new BlockStmt();}
+	BEGIN (NEWLINE+ (ss_ = singleStatement {$stm.addStatement($ss_.stm);} SEMICOLON)*
+	ss = singleStatement {$stm.addStatement($ss.stm);} (SEMICOLON)?)+ NEWLINE+ END;
 
 varDecStatement returns[VarDecStmt vds] locals[VariableDeclaration vd]:
 	{$vds = new VarDecStmt();}
@@ -140,7 +141,7 @@ assignmentStatement :
     orExpression ASSIGN expression;
 
 //todo
-singleStatement :
+singleStatement returns[Statement stm]:
     ifStatement | displayStatement | functionCallStmt | returnStatement | assignmentStatement
     | varDecStatement | loopStatement | append | size;
 
