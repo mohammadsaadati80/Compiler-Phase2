@@ -151,8 +151,8 @@ singleStatement returns[Statement stm]:
     | as = assignmentStatement {$stm = $as.assign;}
     | vds = varDecStatement {$stm = $vds.vds;}
     | ls = loopStatement {$stm = $ls.loop;}
-    | append // todo bayad stmt bashe
-    | size ; // todo bayad stmt bashe
+    | s = size {$stm = $s.sizeRet;}
+    | a = append {$stm = $a.apRet;};
 
 expression returns[Expression expRet]:
     exp1 = orExpression {$expRet = $exp1.exp;}
@@ -201,16 +201,14 @@ otherExpression returns[Expression expRet]:
     v = value {$expRet = $v.valRet;}
     | i = identifier {$expRet = $i.identifierRet;}
     | LPAR (ar = functionArguments) RPAR {$expRet = $ar.exp;}
-    | s = size /*{$expRet = $s.sizeRet;}*/ // todo bayad exp bashe
-    | a = append /*{$expRet = $a.apRet;}*/; // todo bayad exp bashe
+    | s = size {$expRet = $s.sizeRet.getListSizeExpr();}
+    | a = append {$expRet = $a.apRet.getListAppendExpr();};
 
-// todo mitone ham stmt bash ham exp
 size returns[ListSizeStmt sizeRet] locals[ListSize ls]:
     SIZE LPAR e = expression RPAR
     {$ls = new ListSize($e.expRet);
      $sizeRet = new ListSizeStmt($ls);};
 
-// todo mitone ham stmt bash ham exp
 append returns[ListAppendStmt apRet] locals[ListAppend la]:
     APPEND LPAR l = expression COMMA r = expression RPAR
     {$la = new ListAppend($l.expRet,$r.expRet);
