@@ -120,17 +120,20 @@ ifStatement returns[ConditionalStmt stm]:
 elseStatement returns[Statement stm]:
      NEWLINE* ELSE l = loopCondBody {$stm = $l.bodyRet;};
 
-//todo
-loopStatement :
-    whileLoopStatement | doWhileLoopStatement;
+loopStatement returns[LoopStmt loop]:
+    w = whileLoopStatement {$loop = $w.loop;} | d = doWhileLoopStatement {$loop = $d.loop;};
 
-//todo
-whileLoopStatement :
-    WHILE expression loopCondBody;
+whileLoopStatement returns[LoopStmt loop]:
+	{$loop = new LoopStmt();}
+    WHILE c = expression b = loopCondBody
+    {$loop.setCondition($c.expRet);
+     $loop.setBody($b.bodyRet);};
 
-//todo
-doWhileLoopStatement :
-    DO body NEWLINE* WHILE expression;
+doWhileLoopStatement returns[LoopStmt loop]:
+	{$loop = new LoopStmt();}
+    DO b = body NEWLINE* WHILE c = expression
+    {$loop.setCondition($c.expRet);
+     $loop.setBody($b.bodyRet);};
 
 //todo
 displayStatement :
