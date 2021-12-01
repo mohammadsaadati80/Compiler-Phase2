@@ -191,8 +191,11 @@ preUnaryExpression returns[Expression expRet] locals[UnaryOperator op]:
     | ae = accessExpression {$expRet = $ae.expRet;};
 
 accessExpression returns[Expression expRet]:
-    f = otherExpression ((LPAR functionArguments RPAR) | (DOT identifier))* ((LBRACK expression RBRACK) | (DOT identifier))*
-    /*{$expRet = new BinaryExpression($f.expRet,,BinaryOperator.assign);}*/; // todo nemidonam
+	exp1 = otherExpression {$expRet = $exp1.expRet;}
+	((LPAR arg = functionArguments {$expRet = $arg.exp;} RPAR)
+	| (DOT i = identifier {$expRet = new StructAccess($expRet,$i.identifierRet);}))*
+	((LBRACK exp2 = expression {$expRet = new ListAccessByIndex($expRet,$exp2.expRet);} RBRACK)
+	| (DOT i = identifier {$expRet = new StructAccess($expRet,$i.identifierRet);}))*;
 
 otherExpression returns[Expression expRet]:
     v = value {$expRet = $v.valRet;}
