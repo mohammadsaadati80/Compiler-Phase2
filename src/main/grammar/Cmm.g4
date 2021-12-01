@@ -154,32 +154,33 @@ singleStatement returns[Statement stm]:
     | append // todo bayad stmt bashe
     | size ; // todo bayad stmt bashe
 
-//todo
 expression returns[Expression expRet]:
-    orExpression (op = ASSIGN expression )? ;
+    exp1 = orExpression {$expRet = $exp1.exp;}
+    (op = ASSIGN exp2 = expression {$expRet = new BinaryExpression($exp1.exp,$exp2.expRet,BinaryOperator.assign);})? ;
 
-//todo
 orExpression returns[Expression exp]:
-    andExpression (op = OR andExpression )*;
+    exp1 = andExpression {$exp = $exp1.exp;}
+    (op = OR exp2 = andExpression {$exp = new BinaryExpression($exp1.exp,$exp2.exp,BinaryOperator.or);})*;
+
+andExpression returns[Expression exp]:
+    exp1 = equalityExpression {$exp = $exp1.exp;}
+    (op = AND exp2 = equalityExpression {$exp = new BinaryExpression($exp1.exp,$exp2.exp,BinaryOperator.and);})*;
+
+equalityExpression returns[Expression exp]:
+    exp1 = relationalExpression {$exp = $exp1.exp;}
+    (op = EQUAL exp2 = relationalExpression {$exp = new BinaryExpression($exp1.exp,$exp2.exp,BinaryOperator.eq);})*;
+
+relationalExpression returns[Expression exp] locals[BinaryOperator op]:
+    exp1 = additiveExpression {$exp = $exp1.exp;}
+    ((GREATER_THAN {$op = BinaryOperator.gt;} | LESS_THAN {$op = BinaryOperator.lt;}) exp2 = additiveExpression
+    {$exp = new BinaryExpression($exp1.exp,$exp2.exp,$op);})*;
 
 //todo
-andExpression:
-    equalityExpression (op = AND equalityExpression )*;
-
-//todo
-equalityExpression:
-    relationalExpression (op = EQUAL relationalExpression )*;
-
-//todo
-relationalExpression:
-    additiveExpression ((op = GREATER_THAN | op = LESS_THAN) additiveExpression )*;
-
-//todo
-additiveExpression:
+additiveExpression returns[Expression exp]:
     multiplicativeExpression ((op = PLUS | op = MINUS) multiplicativeExpression )*;
 
 //todo
-multiplicativeExpression:
+multiplicativeExpression returns[Expression exp]:
     preUnaryExpression ((op = MULT | op = DIVIDE) preUnaryExpression )*;
 
 preUnaryExpression returns[Expression expRet]:
