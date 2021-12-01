@@ -25,38 +25,41 @@ program returns[Program programRet]:
     (f = functionDeclaration {$programRet.addFunction($f.functionDeclarationRet);})*
     m = main {$programRet.setMain($m.mainRet);};
 
-//todo
 main returns[MainDeclaration mainRet]:
 	{$mainRet = new MainDeclaration();}
     MAIN LPAR RPAR {$mainRet.setLine($MAIN.getLine());}
     b = body {$mainRet.setBody($b.bodyRet);};
 
-//todo
 structDeclaration returns[StructDeclaration structDeclarationRet]:
 	{$structDeclarationRet = new StructDeclaration();}
-    s = STRUCT identifier {$structDeclarationRet.setLine($s.getLine());}
-    ((BEGIN sb = structBody NEWLINE+ END) /*{$structDeclarationRet.setBody($sb.structBodyRet)}*/
-    | (NEWLINE+ singleStatementStructBody SEMICOLON?)) NEWLINE+;
+    s = STRUCT i = identifier {$structDeclarationRet.setStructName($i.identifierRet);}
+    ((BEGIN sb = structBody {$structDeclarationRet.setBody($sb.bodyRet);} NEWLINE+ END)
+    | (NEWLINE+ sbs = singleStatementStructBody {$structDeclarationRet.setBody($sbs.stm);} SEMICOLON?)) NEWLINE+;
 
-//todo
-singleVarWithGetAndSet :
-    type identifier functionArgsDec BEGIN NEWLINE+ setBody getBody END;
+singleVarWithGetAndSet returns[SetGetVarDeclaration sgvd]:
+	{$sgvd = new SetGetVarDeclaration();}
+    t = type i = identifier arg = functionArgsDec BEGIN NEWLINE+ s = setBody g = getBody END
+    {$sgvd.setVarName($i.identifierRet);
+	 $sgvd.setVarType($t.typeRet);
+	 $sgvd.setArgs($arg.funcArgDecRet);
+	 $sgvd.setSetterBody($s.bodyRet);
+	 $sgvd.setGetterBody($g.bodyRet);
+    };
 
-//todo
-singleStatementStructBody :
-    varDecStatement | singleVarWithGetAndSet;
+singleStatementStructBody returns[Statement stm]:
+    vs = varDecStatement {$stm = $vs.vds;}
+    | s = singleVarWithGetAndSet {$stm = $s.sgvd;};
 
-//todo
-structBody returns [Statement bodyRet]:
-    (NEWLINE+ (singleStatementStructBody SEMICOLON)* singleStatementStructBody SEMICOLON?)+;
+structBody returns [BlockStmt bodyRet]:
+	{$bodyRet = new BlockStmt();}
+    (NEWLINE+ (ss_ = singleStatementStructBody {$bodyRet.addStatement($ss_.stm);} SEMICOLON)*
+    ss = singleStatementStructBody {$bodyRet.addStatement($ss.stm);} SEMICOLON?)+;
 
-//todo
-getBody :
-    GET body NEWLINE+;
+getBody returns[Statement bodyRet]:
+    GET b = body {$bodyRet = $b.bodyRet;} NEWLINE+;
 
-//todo
-setBody :
-    SET body NEWLINE+;
+setBody returns[Statement bodyRet]:
+    SET b = body {$bodyRet = $b.bodyRet;} NEWLINE+;
 
 functionDeclaration returns[FunctionDeclaration functionDeclarationRet]:
 	{$functionDeclarationRet = new FunctionDeclaration();}
@@ -71,7 +74,7 @@ functionArgsDec returns[ArrayList<VariableDeclaration> funcArgDecRet]:
 	{$funcArgDecRet = new ArrayList<>();}
     LPAR (tf = type if_ = identifier {$funcArgDecRet.add(new VariableDeclaration($if_.identifierRet,$tf.typeRet));}
     (COMMA ts = type is = identifier {$funcArgDecRet.add(new VariableDeclaration($is.identifierRet,$ts.typeRet));})*)?
-    RPAR ;
+    RPAR;
 
 functionArguments returns[ExprInPar exp]  locals[ArrayList<Expression> arg]:
 	{$arg = new ArrayList<>();}
@@ -90,9 +93,12 @@ loopCondBody :
 blockStatement :
     BEGIN (NEWLINE+ (singleStatement SEMICOLON)* singleStatement (SEMICOLON)?)+ NEWLINE+ END;
 
-//todo
-varDecStatement :
-    type identifier (ASSIGN orExpression )? (COMMA identifier (ASSIGN orExpression)? )*;
+varDecStatement returns[VarDecStmt vds] locals[VariableDeclaration vd]:
+	{$vds = new VarDecStmt();}
+    t = type i = identifier {$vd = new VariableDeclaration($i.identifierRet,$t.typeRet);}
+    (ASSIGN exp = orExpression {$vd.setDefaultValue($exp.exp);})? {$vds.addVar($vd);}
+    (COMMA im = identifier {$vd = new VariableDeclaration($im.identifierRet,$t.typeRet);}
+    (ASSIGN expm = orExpression {$vd.setDefaultValue($expm.exp);})? {$vds.addVar($vd);})*;
 
 // todo mashkok
 functionCallStmt returns[FunctionCallStmt funcCallRet] locals[Expression exp , FunctionCall funcCall]:
@@ -143,7 +149,7 @@ expression returns[Expression expRet]:
     orExpression (op = ASSIGN expression )? ;
 
 //todo
-orExpression:
+orExpression returns[Expression exp]:
     andExpression (op = OR andExpression )*;
 
 //todo
