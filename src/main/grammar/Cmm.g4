@@ -139,14 +139,20 @@ displayStatement returns[DisplayStmt display]:
   DISPLAY LPAR e = expression RPAR
   {$display = new DisplayStmt($e.expRet);};
 
-//todo
-assignmentStatement :
-    orExpression ASSIGN expression;
+assignmentStatement returns[AssignmentStmt assign]:
+    l = orExpression ASSIGN r = expression
+    {$assign = new AssignmentStmt($l.exp,$r.expRet);};
 
-//todo
 singleStatement returns[Statement stm]:
-    ifStatement | displayStatement | functionCallStmt | returnStatement | assignmentStatement
-    | varDecStatement | loopStatement | append | size;
+    is = ifStatement {$stm = $is.stm;}
+    | ds = displayStatement {$stm = $ds.display;}
+    | fs = functionCallStmt {$stm = $fs.funcCallRet;}
+    | rs = returnStatement {$stm = $rs.stm;}
+    | as = assignmentStatement {$stm = $as.assign;}
+    | vds = varDecStatement {$stm = $vds.vds;}
+    | ls = loopStatement {$stm = $ls.loop;}
+    | append // todo bayad stmt bashe
+    | size ; // todo bayad stmt bashe
 
 //todo
 expression returns[Expression expRet]:
