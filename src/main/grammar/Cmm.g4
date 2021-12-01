@@ -175,17 +175,19 @@ relationalExpression returns[Expression exp] locals[BinaryOperator op]:
     ((GREATER_THAN {$op = BinaryOperator.gt;} | LESS_THAN {$op = BinaryOperator.lt;}) exp2 = additiveExpression
     {$exp = new BinaryExpression($exp1.exp,$exp2.exp,$op);})*;
 
-//todo
-additiveExpression returns[Expression exp]:
-    multiplicativeExpression ((op = PLUS | op = MINUS) multiplicativeExpression )*;
+additiveExpression returns[Expression exp] locals[BinaryOperator op]:
+    exp1 = multiplicativeExpression {$exp = $exp1.exp;}
+    ((PLUS {$op = BinaryOperator.add;} | MINUS {$op = BinaryOperator.sub;}) exp2 = multiplicativeExpression
+    {$exp = new BinaryExpression($exp1.exp,$exp2.exp,$op);})*;
 
-//todo
-multiplicativeExpression returns[Expression exp]:
-    preUnaryExpression ((op = MULT | op = DIVIDE) preUnaryExpression )*;
+multiplicativeExpression returns[Expression exp]  locals[BinaryOperator op]:
+    exp1 = preUnaryExpression {$exp = $exp1.expRet;}
+    ((MULT {$op = BinaryOperator.mult;} | DIVIDE {$op = BinaryOperator.div;}) exp2 = preUnaryExpression
+    {$exp = new BinaryExpression($exp1.expRet,$exp2.expRet,$op);})*;
 
-preUnaryExpression returns[Expression expRet]:
-    (op = (NOT |MINUS) e = preUnaryExpression)
-    {$expRet = new UnaryExpression($e.expRet,UnaryOperator.valueOf($op.getText()));}
+preUnaryExpression returns[Expression expRet] locals[UnaryOperator op]:
+    ((NOT {$op = UnaryOperator.not;} | MINUS {$op = UnaryOperator.minus;}) e = preUnaryExpression)
+    {$expRet = new UnaryExpression($e.expRet,$op);}
     | ae = accessExpression {$expRet = $ae.expRet;};
 
 accessExpression returns[Expression expRet]:
