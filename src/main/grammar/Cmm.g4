@@ -1,5 +1,5 @@
 grammar Cmm;
-
+// todo setLine hame monde va bayad check beshe
 @header{
      import main.ast.nodes.*;
      import main.ast.nodes.declaration.*;
@@ -58,17 +58,25 @@ getBody :
 setBody :
     SET body NEWLINE+;
 
-//todo
 functionDeclaration returns[FunctionDeclaration functionDeclarationRet]:
-    (type | VOID ) identifier functionArgsDec body NEWLINE+;
+	{$functionDeclarationRet = new FunctionDeclaration();}
+    (r = type {$functionDeclarationRet.setReturnType($r.typeRet);}
+    | VOID {$functionDeclarationRet.setReturnType(new VoidType());})
+    i = identifier arg = functionArgsDec b = body NEWLINE+
+    {$functionDeclarationRet.setFunctionName($i.identifierRet);
+     $functionDeclarationRet.setArgs($arg.funcArgDecRet);
+     $functionDeclarationRet.setBody($b.bodyRet);};
 
-//todo
-functionArgsDec :
-    LPAR (type identifier (COMMA type identifier)*)? RPAR ;
+functionArgsDec returns[ArrayList<VariableDeclaration> funcArgDecRet]:
+	{$funcArgDecRet = new ArrayList<>();}
+    LPAR (tf = type if_ = identifier {$funcArgDecRet.add(new VariableDeclaration($if_.identifierRet,$tf.typeRet));}
+    (COMMA ts = type is = identifier {$funcArgDecRet.add(new VariableDeclaration($is.identifierRet,$ts.typeRet));})*)?
+    RPAR ;
 
-functionArguments returns[ArrayList<Expression> arg]:
-	{$arg = new ArrayList<>();} // todo shak daram dorost bashe
-    (ef = expression {$arg.add($ef.expRet);} (COMMA es = expression {$arg.add($es.expRet);})*)?;
+functionArguments returns[ExprInPar exp]  locals[ArrayList<Expression> arg]:
+	{$arg = new ArrayList<>();}
+    (ef = expression {$arg.add($ef.expRet);} (COMMA es = expression {$arg.add($es.expRet);})*)?
+    {$exp = new ExprInPar($arg);};
 
 //todo
 body returns [Statement bodyRet]:
@@ -86,9 +94,12 @@ blockStatement :
 varDecStatement :
     type identifier (ASSIGN orExpression )? (COMMA identifier (ASSIGN orExpression)? )*;
 
-//todo
-functionCallStmt :
-     otherExpression ((LPAR functionArguments RPAR) | (DOT identifier))* (LPAR functionArguments RPAR);
+// todo mashkok
+functionCallStmt returns[FunctionCallStmt funcCallRet] locals[Expression exp , FunctionCall funcCall]:
+     e = otherExpression {$exp = $e.expRet;}
+     ((LPAR fa = functionArguments {$exp = new FunctionCall($exp, $fa.exp.getInputs());} RPAR)
+     | (DOT i = identifier {$exp = new StructAccess($exp, $i.identifierRet);}))*
+     (LPAR fa2 = functionArguments {$funcCallRet = new FunctionCallStmt($funcCall);} RPAR);
 
 //todo
 returnStatement :
@@ -167,7 +178,7 @@ accessExpression returns[Expression expRet]:
 otherExpression returns[Expression expRet]:
     v = value {$expRet = $v.valRet;}
     | i = identifier {$expRet = $i.identifierRet;}
-    | LPAR (ar = functionArguments) RPAR /*{$expRet = $ar.arg;}*/ //todo nemodonam
+    | LPAR (ar = functionArguments) RPAR {$expRet = $ar.exp;}
     | s = size /*{$expRet = $s.sizeRet;}*/ // todo bayad exp bashe
     | a = append /*{$expRet = $a.apRet;}*/; // todo bayad exp bashe
 
