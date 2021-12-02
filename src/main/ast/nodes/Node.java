@@ -1,11 +1,8 @@
 package main.ast.nodes;
 
-
 import main.compileError.CompileError;
 import main.visitor.IVisitor;
-
 import java.util.ArrayList;
-
 
 public abstract class Node {
     private int line;

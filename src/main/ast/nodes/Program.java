@@ -4,7 +4,6 @@ import main.ast.nodes.declaration.FunctionDeclaration;
 import main.ast.nodes.declaration.MainDeclaration;
 import main.ast.nodes.declaration.struct.StructDeclaration;
 import main.visitor.IVisitor;
-
 import java.util.ArrayList;
 
 //line -> 1
