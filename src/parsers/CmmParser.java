@@ -1832,7 +1832,7 @@ public class CmmParser extends Parser {
 			setState(386);
 			((FunctionCallStmtContext)_localctx).fa2 = functionArguments();
 			((FunctionCallStmtContext)_localctx).funcCallRet =  new FunctionCallStmt(_localctx.funcCall);
-			     ((FunctionCallStmtContext)_localctx).fa.exp.setLine(((FunctionCallStmtContext)_localctx).ll2.getLine()); _localctx.funcCallRet.setLine(((FunctionCallStmtContext)_localctx).ll2.getLine());
+			     ((FunctionCallStmtContext)_localctx).fa2.exp.setLine(((FunctionCallStmtContext)_localctx).ll2.getLine()); _localctx.funcCallRet.setLine(((FunctionCallStmtContext)_localctx).ll2.getLine());
 			setState(388);
 			match(RPAR);
 			}
