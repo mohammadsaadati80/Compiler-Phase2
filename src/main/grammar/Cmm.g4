@@ -81,7 +81,7 @@ functionArgsDec returns[ArrayList<VariableDeclaration> funcArgDecRet] locals[Var
      $var.setLine($if_.identifierRet.getLine());
      $funcArgDecRet.add($var);}
     (COMMA ts = type is = identifier
-    {$var = new VariableDeclaration($if_.identifierRet,$tf.typeRet);
+    {$var = new VariableDeclaration($is.identifierRet,$ts.typeRet);
 	 $var.setLine($if_.identifierRet.getLine());
 	 $funcArgDecRet.add($var);})*)? RPAR;
 
@@ -122,7 +122,7 @@ functionCallStmt returns[FunctionCallStmt funcCallRet] locals[Expression exp , F
      | (ll3 = DOT i = identifier {$exp = new StructAccess($exp, $i.identifierRet);
      $exp.setLine($ll3.getLine());}))*
      (ll2 = LPAR fa2 = functionArguments {$funcCallRet = new FunctionCallStmt($funcCall);
-     $fa2.exp.setLine($ll2.getLine()); $funcCallRet.setLine($ll2.getLine());} RPAR);
+     $fa2.exp.setLine($ll2.getLine()); $funcCallRet.setLine($ll2.getLine()); $funcCallRet.setFunctionCall($funcCall);} RPAR);
 
 returnStatement returns[ReturnStmt stm]:
 	{$stm = new ReturnStmt();}
@@ -243,7 +243,8 @@ append returns[ListAppendStmt apRet] locals[ListAppend la]:
     ll = APPEND LPAR l = expression COMMA r = expression RPAR
     {$la = new ListAppend($l.expRet,$r.expRet);
      $la.setLine($ll.getLine());
-     $apRet = new ListAppendStmt($la);};
+     $apRet = new ListAppendStmt($la);
+     $apRet.setLine($ll.getLine());};
 
 value returns[Value valRet]:
     bv = boolValue {$valRet = $bv.boolValRet;}
