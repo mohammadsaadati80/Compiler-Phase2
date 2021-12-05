@@ -1,2 +1,3 @@
 Line 18: Name of function st conflicts with a struct’s name
+Line 18: Variable a is already declared
 Line 13: Duplicate struct st

@@ -10,15 +10,13 @@ import main.ast.nodes.expression.values.primitive.BoolValue;
 import main.ast.nodes.expression.values.primitive.IntValue;
 import main.ast.nodes.statement.*;
 import main.compileError.CompileError;
-import main.compileError.nameError.DuplicateFunction;
-import main.compileError.nameError.DuplicateStruct;
-import main.compileError.nameError.FunctionStructConflict;
+import main.compileError.nameError.*;
 import main.symbolTable.SymbolTable;
 import main.symbolTable.exceptions.ItemAlreadyExistsException;
 import main.symbolTable.exceptions.ItemNotFoundException;
 import main.symbolTable.items.FunctionSymbolTableItem;
 import main.symbolTable.items.StructSymbolTableItem;
-import main.symbolTable.utils.Stack;
+import main.symbolTable.items.VariableSymbolTableItem;
 import main.visitor.Visitor;
 
 import java.util.HashSet;
@@ -40,12 +38,12 @@ public class NameAnalyzer extends Visitor<Void> {
     public Void visit(Program program) {
         SymbolTable symbolTable = new SymbolTable();
         SymbolTable.top = symbolTable;
+        SymbolTable.root = SymbolTable.top;
         SymbolTable.push(symbolTable);
         for (StructDeclaration structDeclaration : program.getStructs())
             structDeclaration.accept(this);
         for (FunctionDeclaration functionDeclaration : program.getFunctions())
             functionDeclaration.accept(this);
-        SymbolTable.root = SymbolTable.top;
         return super.visit(program);
     }
 
@@ -67,7 +65,9 @@ public class NameAnalyzer extends Visitor<Void> {
             functionSymbolTableItem.setName(functionSymbolTableItem.getName() + "^");
         } catch (ItemNotFoundException ignored) {}
 
-        functionSymbolTableItem.setFunctionSymbolTable(new SymbolTable());
+        SymbolTable symbolTable = new SymbolTable();
+        symbolTable.pre = SymbolTable.top;
+        functionSymbolTableItem.setFunctionSymbolTable(symbolTable);
 
         if (functionDeclaration.getFunctionName() != null)
             functionDeclaration.getFunctionName().accept(this);
@@ -86,6 +86,36 @@ public class NameAnalyzer extends Visitor<Void> {
 
     @Override
     public Void visit(VariableDeclaration variableDeclaration) {
+        VariableSymbolTableItem variableSymbolTableItem =
+                new VariableSymbolTableItem(variableDeclaration.getVarName());
+
+        try {
+            SymbolTable.top.put(variableSymbolTableItem);
+        } catch (ItemAlreadyExistsException e) {
+            this.errors.add(new DuplicateVar
+                    (variableDeclaration.getLine(), variableDeclaration.getVarName().getName()));
+            variableSymbolTableItem.setName(variableSymbolTableItem.getName() + "^");
+        }
+
+        try {
+            SymbolTable.root.getItem("Struct_" + variableDeclaration.getVarName().getName());
+            this.errors.add(new VarStructConflict
+                    (variableDeclaration.getLine(), variableDeclaration.getVarName().getName()));
+            variableSymbolTableItem.setName(variableSymbolTableItem.getName() + "^");
+        } catch (ItemNotFoundException ignored) {}
+
+        try {
+            SymbolTable.root.getItem("Function_" + variableDeclaration.getVarName().getName());
+            this.errors.add(new VarFunctionConflict
+                    (variableDeclaration.getLine(), variableDeclaration.getVarName().getName()));
+            variableSymbolTableItem.setName(variableSymbolTableItem.getName() + "^");
+        } catch (ItemNotFoundException ignored) {}
+
+        if (variableDeclaration.getVarName() != null)
+            variableDeclaration.getVarName().accept(this);
+        if (variableDeclaration.getDefaultValue() != null)
+            variableDeclaration.getDefaultValue().accept(this);
+
         return super.visit(variableDeclaration);
     }
 
@@ -100,7 +130,9 @@ public class NameAnalyzer extends Visitor<Void> {
             structSymbolTableItem.setName(structSymbolTableItem.getName() + "^");
         }
 
-        structSymbolTableItem.setStructSymbolTable(new SymbolTable());
+        SymbolTable symbolTable = new SymbolTable();
+        symbolTable.pre = SymbolTable.top;
+        structSymbolTableItem.setStructSymbolTable(symbolTable);
 
         if (structDeclaration.getStructName() != null)
             structDeclaration.getStructName().accept(this);
