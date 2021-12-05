@@ -114,15 +114,17 @@ varDecStatement returns[VarDecStmt vds] locals[VariableDeclaration vd]:
     (ASSIGN expm = orExpression {$vd.setDefaultValue($expm.exp);})? {$vds.addVar($vd);})*
     {$vds.setLine($i.identifierRet.getLine());};
 
-// todo mashkok
 functionCallStmt returns[FunctionCallStmt funcCallRet] locals[Expression exp , FunctionCall funcCall]:
      e = otherExpression {$exp = $e.expRet;}
      ((ll1 = LPAR fa = functionArguments {$exp = new FunctionCall($exp, $fa.exp.getInputs());
      $fa.exp.setLine($ll1.getLine()); $exp.setLine($ll1.getLine());} RPAR)
      | (ll3 = DOT i = identifier {$exp = new StructAccess($exp, $i.identifierRet);
      $exp.setLine($ll3.getLine());}))*
-     (ll2 = LPAR fa2 = functionArguments {$funcCallRet = new FunctionCallStmt($funcCall);
-     $fa2.exp.setLine($ll2.getLine()); $funcCallRet.setLine($ll2.getLine()); $funcCallRet.setFunctionCall($funcCall);} RPAR);
+     (ll2 = LPAR fa2 = functionArguments {$funcCall = new FunctionCall($exp,$fa2.exp.getInputs());
+     $funcCall.setLine($ll2.getLine());
+     $funcCallRet = new FunctionCallStmt($funcCall);
+     $fa2.exp.setLine($ll2.getLine());
+     $funcCallRet.setLine($ll2.getLine());} RPAR);
 
 returnStatement returns[ReturnStmt stm]:
 	{$stm = new ReturnStmt();}

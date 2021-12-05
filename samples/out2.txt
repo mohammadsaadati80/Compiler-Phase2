@@ -87,3 +87,6 @@ Line 31: BinaryExpression_div
 Line 31: IntValue_2
 Line 31: Identifier_a
 Line 32: FunctionCallStmt
+Line 32: FunctionCall
+Line 32: Identifier_f1
+Line 32: Identifier_temp
