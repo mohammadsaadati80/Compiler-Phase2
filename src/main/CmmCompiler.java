@@ -1,5 +1,6 @@
 package main;
 
+import main.compileError.CompileError;
 import main.visitor.name.ASTTreePrinter;
 import main.visitor.name.NameAnalyzer;
 import parsers.*;
@@ -17,9 +18,12 @@ public class CmmCompiler {
         NameAnalyzer nameAnalyzer = new NameAnalyzer();
         nameAnalyzer.visit(program);
 
-        if (nameAnalyzer.getErrorCount() == 0){
+        if (nameAnalyzer.getErrors().size() == 0) {
             ASTTreePrinter astTreePrinter = new ASTTreePrinter();
             program.accept(astTreePrinter);
+        } else {
+            for (CompileError error : nameAnalyzer.getErrors())
+                System.out.println(error.getMessage());
         }
     }
 }

@@ -37,8 +37,8 @@ Line 18: VarDeclaration_a
 Line 18: Identifier_a
 Line 18: VarDeclaration_a
 Line 18: Identifier_a
-Line 18: VarDeclaration_a
-Line 18: Identifier_a
+Line 18: VarDeclaration_b
+Line 18: Identifier_b
 Line 18: BlockStmt
 Line 19: VarDecStmt
 Line 19: VarDeclaration_b
