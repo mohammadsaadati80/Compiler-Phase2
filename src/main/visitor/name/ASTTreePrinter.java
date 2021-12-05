@@ -176,7 +176,7 @@ public class ASTTreePrinter extends Visitor<Void> {
         return null;
     }
 
-    @Override // todo need check
+    @Override
     public Void visit(UnaryExpression unaryExpression) {
         messagePrinter(unaryExpression.getLine(), unaryExpression.toString());
         if (unaryExpression.getOperand() != null)
