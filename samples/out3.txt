@@ -1,33 +1,4 @@
-Line 1: Program
-Line 1: StructDeclaration_A
-Line 1: Identifier_A
-Line 1: BlockStmt
-Line 2: VarDecStmt
-Line 2: VarDeclaration_b
-Line 2: Identifier_b
-Line 3: VarDecStmt
-Line 3: VarDeclaration_d
-Line 3: Identifier_d
-Line 6: StructDeclaration_B
-Line 6: Identifier_B
-Line 7: VarDecStmt
-Line 7: VarDeclaration_c
-Line 7: Identifier_c
-Line 9: StructDeclaration_C
-Line 9: Identifier_C
-Line 10: VarDecStmt
-Line 10: VarDeclaration_a
-Line 10: Identifier_a
-Line 12: StructDeclaration_D
-Line 12: Identifier_D
-Line 12: BlockStmt
-Line 13: VarDecStmt
-Line 13: VarDeclaration_d
-Line 13: Identifier_d
-Line 14: VarDecStmt
-Line 14: VarDeclaration_a
-Line 14: Identifier_a
-Line 17: MainDeclaration
-Line 17: BlockStmt
-Line 18: ReturnStmt
-Line 18: IntValue_2
+Line 6: Struct B is in dependency cycle
+Line 9: Struct C is in dependency cycle
+Line 1: Struct A is in dependency cycle
+Line 12: Struct D is in dependency cycle

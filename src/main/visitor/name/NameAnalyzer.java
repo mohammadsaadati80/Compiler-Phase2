@@ -19,6 +19,7 @@ import main.symbolTable.items.FunctionSymbolTableItem;
 import main.symbolTable.items.StructSymbolTableItem;
 import main.symbolTable.items.VariableSymbolTableItem;
 import main.visitor.Visitor;
+
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -26,16 +27,20 @@ import java.util.Set;
 
 public class NameAnalyzer extends Visitor<Void> {
 
-    private boolean struct_dec;
+    private boolean structDec;
     private final Set<CompileError> errors;
-    private final ArrayList<String> structs_name;
-    private final ArrayList<AbstractMap.SimpleEntry<String,String>> edges;
+    private final ArrayList<String> cycles;
+    private final ArrayList<String> structsName;
+    private final ArrayList<StructDeclaration> structsDecs;
+    private final ArrayList<AbstractMap.SimpleEntry<String, String>> edges;
     private int[][] adj;
 
     public NameAnalyzer() {
         this.errors = new HashSet<>();
         this.edges = new ArrayList<>();
-        this.structs_name = new ArrayList<>();
+        this.structsName = new ArrayList<>();
+        this.structsDecs = new ArrayList<>();
+        this.cycles = new ArrayList<>();
     }
 
     public Set<CompileError> getErrors() {
@@ -48,11 +53,12 @@ public class NameAnalyzer extends Visitor<Void> {
         SymbolTable.root = symbolTable;
         SymbolTable.top = symbolTable;
         SymbolTable.push(symbolTable);
-        struct_dec = true;
+        structDec = true;
         for (StructDeclaration structDeclaration : program.getStructs())
             structDeclaration.accept(this);
         addEdges();
-        struct_dec = false;
+        findCycles();
+        structDec = false;
         for (FunctionDeclaration functionDeclaration : program.getFunctions())
             functionDeclaration.accept(this);
         program.getMain().accept(this);
@@ -76,7 +82,8 @@ public class NameAnalyzer extends Visitor<Void> {
             functionSymbolTableItem.setName(functionSymbolTableItem.getName() + "^");
             try {
                 SymbolTable.root.put(functionSymbolTableItem);
-            } catch (ItemAlreadyExistsException ignored) {}
+            } catch (ItemAlreadyExistsException ignored) {
+            }
         }
 
         try {
@@ -84,7 +91,8 @@ public class NameAnalyzer extends Visitor<Void> {
             this.errors.add(new FunctionStructConflict
                     (functionDeclaration.getLine(), functionDeclaration.getFunctionName().getName()));
             functionSymbolTableItem.setName(functionSymbolTableItem.getName() + "^");
-        } catch (ItemNotFoundException ignored) {}
+        } catch (ItemNotFoundException ignored) {
+        }
 
         SymbolTable symbolTable = new SymbolTable();
         symbolTable.pre = SymbolTable.top;
@@ -126,7 +134,8 @@ public class NameAnalyzer extends Visitor<Void> {
             this.errors.add(new DuplicateVar
                     (variableDeclaration.getLine(), variableDeclaration.getVarName().getName()));
             variableSymbolTableItem.setName(variableSymbolTableItem.getName() + "^");
-        } catch (ItemNotFoundException ignored) {}
+        } catch (ItemNotFoundException ignored) {
+        }
 
         try {
             SymbolTable.top.put(variableSymbolTableItem);
@@ -141,18 +150,20 @@ public class NameAnalyzer extends Visitor<Void> {
             this.errors.add(new VarStructConflict
                     (variableDeclaration.getLine(), variableDeclaration.getVarName().getName()));
             variableSymbolTableItem.setName(variableSymbolTableItem.getName() + "^");
-        } catch (ItemNotFoundException ignored) {}
+        } catch (ItemNotFoundException ignored) {
+        }
 
         try {
             SymbolTable.root.getItem("Function_" + variableDeclaration.getVarName().getName());
             this.errors.add(new VarFunctionConflict
                     (variableDeclaration.getLine(), variableDeclaration.getVarName().getName()));
             variableSymbolTableItem.setName(variableSymbolTableItem.getName() + "^");
-        } catch (ItemNotFoundException ignored) {}
+        } catch (ItemNotFoundException ignored) {
+        }
 
-        if (struct_dec && variableDeclaration.getVarType() instanceof StructType){
+        if (structDec && variableDeclaration.getVarType() instanceof StructType) {
             edges.add(new AbstractMap.SimpleEntry<String, String>
-                    (structs_name.get(structs_name.size()-1), variableDeclaration.getVarType().toString()));
+                    (structsName.get(structsName.size() - 1), variableDeclaration.getVarType().toString()));
         }
 
         if (variableDeclaration.getVarName() != null)
@@ -178,7 +189,8 @@ public class NameAnalyzer extends Visitor<Void> {
         structSymbolTableItem.setStructSymbolTable(symbolTable);
         SymbolTable.push(symbolTable);
 
-        structs_name.add("StructType_"+structDeclaration.getStructName().getName());
+        structsDecs.add(structDeclaration);
+        structsName.add("StructType_" + structDeclaration.getStructName().getName());
 
         if (structDeclaration.getStructName() != null)
             structDeclaration.getStructName().accept(this);
@@ -193,7 +205,7 @@ public class NameAnalyzer extends Visitor<Void> {
     public Void visit(SetGetVarDeclaration setGetVarDeclaration) {
         if (setGetVarDeclaration.getVarName() != null) {
             VariableDeclaration variableDeclaration =
-                    new VariableDeclaration(setGetVarDeclaration.getVarName(),setGetVarDeclaration.getVarType());
+                    new VariableDeclaration(setGetVarDeclaration.getVarName(), setGetVarDeclaration.getVarType());
             variableDeclaration.setLine(setGetVarDeclaration.getLine());
             variableDeclaration.accept(this);
         }
@@ -386,10 +398,37 @@ public class NameAnalyzer extends Visitor<Void> {
         return super.visit(exprInPar);
     }
 
-    private void addEdges(){
-        adj = new int[structs_name.size()][structs_name.size()];
-        for (AbstractMap.SimpleEntry entry : edges){
-            adj[structs_name.indexOf(entry.getKey())][structs_name.indexOf(entry.getValue())] = 1;
+    private void addEdges() {
+        adj = new int[structsName.size()][structsName.size()];
+        for (AbstractMap.SimpleEntry entry : edges) {
+            adj[structsName.indexOf(entry.getKey())][structsName.indexOf(entry.getValue())] = 1;
         }
+    }
+
+    private void findCycles() {
+        for (int i = 0; i < structsName.size(); i++) {
+            bfs(i, new ArrayList<Integer>(), new ArrayList<Integer>());
+        }
+    }
+
+    private void bfs(int src, ArrayList<Integer> visited, ArrayList<Integer> path) {
+        path.add(src);
+        if (path.get(0).equals(path.get(path.size() - 1)) && path.size() >= 2) {
+            for (Integer index : path) {
+                CyclicDependency dependency = new CyclicDependency(structsDecs.get(index).getLine(),
+                        structsDecs.get(index).getStructName().getName());
+                if (!cycles.contains(dependency.getMessage())) {
+                    this.cycles.add(dependency.getMessage());
+                    this.errors.add(dependency);
+                }
+            }
+            return;
+        }
+        if (visited.contains(src)) return;
+        visited.add(src);
+        for (int i = 0; i < structsName.size(); i++) {
+            if (adj[src][i] != 0) bfs(i, visited, new ArrayList<Integer>(path));
+        }
+        path.remove(path.size() - 1);
     }
 }
