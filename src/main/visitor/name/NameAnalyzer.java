@@ -44,6 +44,7 @@ public class NameAnalyzer extends Visitor<Void> {
             structDeclaration.accept(this);
         for (FunctionDeclaration functionDeclaration : program.getFunctions())
             functionDeclaration.accept(this);
+        program.getMain().accept(this);
         SymbolTable.pop();
         return super.visit(program);
     }
@@ -89,8 +90,14 @@ public class NameAnalyzer extends Visitor<Void> {
 
     @Override
     public Void visit(MainDeclaration mainDeclaration) {
+        SymbolTable symbolTable = new SymbolTable();
+        symbolTable.pre = SymbolTable.top;
+        SymbolTable.push(symbolTable);
+
         if (mainDeclaration.getBody() != null)
             mainDeclaration.getBody().accept(this);
+
+        SymbolTable.pop();
         return super.visit(mainDeclaration);
     }
 
@@ -99,6 +106,13 @@ public class NameAnalyzer extends Visitor<Void> {
         VariableSymbolTableItem variableSymbolTableItem =
                 new VariableSymbolTableItem(variableDeclaration.getVarName());
         variableSymbolTableItem.setType(variableDeclaration.getVarType());
+
+        try { //todo mashkok
+            SymbolTable.top.getItem(variableSymbolTableItem.getKey());
+            this.errors.add(new DuplicateVar
+                    (variableDeclaration.getLine(), variableDeclaration.getVarName().getName()));
+            variableSymbolTableItem.setName(variableSymbolTableItem.getName() + "^");
+        } catch (ItemNotFoundException ignored) {}
 
         try {
             SymbolTable.top.put(variableSymbolTableItem);
@@ -194,10 +208,23 @@ public class NameAnalyzer extends Visitor<Void> {
     public Void visit(ConditionalStmt conditionalStmt) {
         if (conditionalStmt.getCondition() != null)
             conditionalStmt.getCondition().accept(this);
-        if (conditionalStmt.getThenBody() != null)
+
+        if (conditionalStmt.getThenBody() != null) {
+            SymbolTable symbolTable = new SymbolTable();
+            symbolTable.pre = SymbolTable.top;
+            SymbolTable.push(symbolTable);
             conditionalStmt.getThenBody().accept(this);
-        if (conditionalStmt.getElseBody() != null)
+            SymbolTable.pop();
+        }
+
+        if (conditionalStmt.getElseBody() != null) {
+            SymbolTable symbolTable = new SymbolTable();
+            symbolTable.pre = SymbolTable.top;
+            SymbolTable.push(symbolTable);
             conditionalStmt.getElseBody().accept(this);
+            SymbolTable.pop();
+        }
+
         return super.visit(conditionalStmt);
     }
 
@@ -224,10 +251,16 @@ public class NameAnalyzer extends Visitor<Void> {
 
     @Override
     public Void visit(LoopStmt loopStmt) {
+        SymbolTable symbolTable = new SymbolTable();
+        symbolTable.pre = SymbolTable.top;
+        SymbolTable.push(symbolTable);
+
         if (loopStmt.getCondition() != null)
             loopStmt.getCondition().accept(this);
         if (loopStmt.getBody() != null)
             loopStmt.getBody().accept(this);
+
+        SymbolTable.pop();
         return super.visit(loopStmt);
     }
 
