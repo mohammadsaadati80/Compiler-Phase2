@@ -9,6 +9,7 @@ import main.ast.nodes.expression.*;
 import main.ast.nodes.expression.values.primitive.BoolValue;
 import main.ast.nodes.expression.values.primitive.IntValue;
 import main.ast.nodes.statement.*;
+import main.ast.types.StructType;
 import main.compileError.CompileError;
 import main.compileError.nameError.*;
 import main.symbolTable.SymbolTable;
@@ -18,16 +19,23 @@ import main.symbolTable.items.FunctionSymbolTableItem;
 import main.symbolTable.items.StructSymbolTableItem;
 import main.symbolTable.items.VariableSymbolTableItem;
 import main.visitor.Visitor;
-
+import java.util.AbstractMap;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
 public class NameAnalyzer extends Visitor<Void> {
 
+    private boolean struct_dec;
     private final Set<CompileError> errors;
+    private final ArrayList<String> structs_name;
+    private final ArrayList<AbstractMap.SimpleEntry<String,String>> edges;
+    private int[][] adj;
 
     public NameAnalyzer() {
         this.errors = new HashSet<>();
+        this.edges = new ArrayList<>();
+        this.structs_name = new ArrayList<>();
     }
 
     public Set<CompileError> getErrors() {
@@ -40,8 +48,11 @@ public class NameAnalyzer extends Visitor<Void> {
         SymbolTable.root = symbolTable;
         SymbolTable.top = symbolTable;
         SymbolTable.push(symbolTable);
+        struct_dec = true;
         for (StructDeclaration structDeclaration : program.getStructs())
             structDeclaration.accept(this);
+        addEdges();
+        struct_dec = false;
         for (FunctionDeclaration functionDeclaration : program.getFunctions())
             functionDeclaration.accept(this);
         program.getMain().accept(this);
@@ -63,6 +74,9 @@ public class NameAnalyzer extends Visitor<Void> {
             this.errors.add(new DuplicateFunction
                     (functionDeclaration.getLine(), functionDeclaration.getFunctionName().getName()));
             functionSymbolTableItem.setName(functionSymbolTableItem.getName() + "^");
+            try {
+                SymbolTable.root.put(functionSymbolTableItem);
+            } catch (ItemAlreadyExistsException ignored) {}
         }
 
         try {
@@ -107,7 +121,7 @@ public class NameAnalyzer extends Visitor<Void> {
                 new VariableSymbolTableItem(variableDeclaration.getVarName());
         variableSymbolTableItem.setType(variableDeclaration.getVarType());
 
-        try { //todo mashkok
+        try {
             SymbolTable.top.getItem(variableSymbolTableItem.getKey());
             this.errors.add(new DuplicateVar
                     (variableDeclaration.getLine(), variableDeclaration.getVarName().getName()));
@@ -136,6 +150,11 @@ public class NameAnalyzer extends Visitor<Void> {
             variableSymbolTableItem.setName(variableSymbolTableItem.getName() + "^");
         } catch (ItemNotFoundException ignored) {}
 
+        if (struct_dec && variableDeclaration.getVarType() instanceof StructType){
+            edges.add(new AbstractMap.SimpleEntry<String, String>
+                    (structs_name.get(structs_name.size()-1), variableDeclaration.getVarType().toString()));
+        }
+
         if (variableDeclaration.getVarName() != null)
             variableDeclaration.getVarName().accept(this);
         if (variableDeclaration.getDefaultValue() != null)
@@ -152,13 +171,14 @@ public class NameAnalyzer extends Visitor<Void> {
         } catch (ItemAlreadyExistsException e) {
             this.errors.add(new DuplicateStruct
                     (structDeclaration.getLine(), structDeclaration.getStructName().getName()));
-            structSymbolTableItem.setName(structSymbolTableItem.getName() + "^");
         }
 
         SymbolTable symbolTable = new SymbolTable();
         symbolTable.pre = SymbolTable.root;
         structSymbolTableItem.setStructSymbolTable(symbolTable);
         SymbolTable.push(symbolTable);
+
+        structs_name.add("StructType_"+structDeclaration.getStructName().getName());
 
         if (structDeclaration.getStructName() != null)
             structDeclaration.getStructName().accept(this);
@@ -364,5 +384,12 @@ public class NameAnalyzer extends Visitor<Void> {
         for (Expression input : exprInPar.getInputs())
             input.accept(this);
         return super.visit(exprInPar);
+    }
+
+    private void addEdges(){
+        adj = new int[structs_name.size()][structs_name.size()];
+        for (AbstractMap.SimpleEntry entry : edges){
+            adj[structs_name.indexOf(entry.getKey())][structs_name.indexOf(entry.getValue())] = 1;
+        }
     }
 }
