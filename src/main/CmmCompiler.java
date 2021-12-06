@@ -1,5 +1,8 @@
 package main;
 
+import main.compileError.CompileError;
+import main.visitor.name.ASTTreePrinter;
+import main.visitor.name.NameAnalyzer;
 import parsers.*;
 import main.ast.nodes.Program;
 import org.antlr.v4.runtime.CharStream;
@@ -12,7 +15,15 @@ public class CmmCompiler {
         CmmParser cmmParser = new CmmParser(tokenStream);
 
         Program program = cmmParser.cmm().cmmProgram;
+        NameAnalyzer nameAnalyzer = new NameAnalyzer();
+        nameAnalyzer.visit(program);
 
-        //todo
+        if (nameAnalyzer.getErrors().size() == 0) {
+            ASTTreePrinter astTreePrinter = new ASTTreePrinter();
+            program.accept(astTreePrinter);
+        } else {
+            for (CompileError error : nameAnalyzer.getErrors())
+                System.out.println(error.getMessage());
+        }
     }
 }

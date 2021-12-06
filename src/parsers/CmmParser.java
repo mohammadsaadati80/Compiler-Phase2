@@ -1146,7 +1146,7 @@ public class CmmParser extends Parser {
 					((FunctionArgsDecContext)_localctx).ts = type();
 					setState(251);
 					((FunctionArgsDecContext)_localctx).is = identifier();
-					((FunctionArgsDecContext)_localctx).var =  new VariableDeclaration(((FunctionArgsDecContext)_localctx).if_.identifierRet,((FunctionArgsDecContext)_localctx).tf.typeRet);
+					((FunctionArgsDecContext)_localctx).var =  new VariableDeclaration(((FunctionArgsDecContext)_localctx).is.identifierRet,((FunctionArgsDecContext)_localctx).ts.typeRet);
 						 _localctx.var.setLine(((FunctionArgsDecContext)_localctx).if_.identifierRet.getLine());
 						 _localctx.funcArgDecRet.add(_localctx.var);
 					}
@@ -1831,8 +1831,11 @@ public class CmmParser extends Parser {
 			((FunctionCallStmtContext)_localctx).ll2 = match(LPAR);
 			setState(386);
 			((FunctionCallStmtContext)_localctx).fa2 = functionArguments();
-			((FunctionCallStmtContext)_localctx).funcCallRet =  new FunctionCallStmt(_localctx.funcCall);
-			     ((FunctionCallStmtContext)_localctx).fa2.exp.setLine(((FunctionCallStmtContext)_localctx).ll2.getLine()); _localctx.funcCallRet.setLine(((FunctionCallStmtContext)_localctx).ll2.getLine());
+			((FunctionCallStmtContext)_localctx).funcCall =  new FunctionCall(_localctx.exp,((FunctionCallStmtContext)_localctx).fa2.exp.getInputs());
+			     _localctx.funcCall.setLine(((FunctionCallStmtContext)_localctx).ll2.getLine());
+			     ((FunctionCallStmtContext)_localctx).funcCallRet =  new FunctionCallStmt(_localctx.funcCall);
+			     ((FunctionCallStmtContext)_localctx).fa2.exp.setLine(((FunctionCallStmtContext)_localctx).ll2.getLine());
+			     _localctx.funcCallRet.setLine(((FunctionCallStmtContext)_localctx).ll2.getLine());
 			setState(388);
 			match(RPAR);
 			}
@@ -3628,6 +3631,7 @@ public class CmmParser extends Parser {
 			((AppendContext)_localctx).la =  new ListAppend(((AppendContext)_localctx).l.expRet,((AppendContext)_localctx).r.expRet);
 			     _localctx.la.setLine(((AppendContext)_localctx).ll.getLine());
 			     ((AppendContext)_localctx).apRet =  new ListAppendStmt(_localctx.la);
+			     _localctx.apRet.setLine(((AppendContext)_localctx).ll.getLine());
 			}
 		}
 		catch (RecognitionException re) {
