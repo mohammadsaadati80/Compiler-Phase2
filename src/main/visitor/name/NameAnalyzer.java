@@ -79,18 +79,19 @@ public class NameAnalyzer extends Visitor<Void> {
         } catch (ItemAlreadyExistsException e) {
             this.errors.add(new DuplicateFunction
                     (functionDeclaration.getLine(), functionDeclaration.getFunctionName().getName()));
-            functionSymbolTableItem.setName(functionSymbolTableItem.getName() + "^");
+            functionSymbolTableItem.setName
+                    (functionSymbolTableItem.getName() + "^".repeat(Math.max(0, errors.size() + 10)));
             try {
                 SymbolTable.root.put(functionSymbolTableItem);
-            } catch (ItemAlreadyExistsException ignored) {
-            }
+            } catch (ItemAlreadyExistsException ignored) {}
         }
 
         try {
             SymbolTable.root.getItem("Struct_" + functionDeclaration.getFunctionName().getName());
             this.errors.add(new FunctionStructConflict
                     (functionDeclaration.getLine(), functionDeclaration.getFunctionName().getName()));
-            functionSymbolTableItem.setName(functionSymbolTableItem.getName() + "^");
+            functionSymbolTableItem.setName
+                    (functionSymbolTableItem.getName() + "^".repeat(Math.max(0, errors.size() + 10)));
         } catch (ItemNotFoundException ignored) {
         }
 
@@ -133,7 +134,8 @@ public class NameAnalyzer extends Visitor<Void> {
             SymbolTable.top.getItem(variableSymbolTableItem.getKey());
             this.errors.add(new DuplicateVar
                     (variableDeclaration.getLine(), variableDeclaration.getVarName().getName()));
-            variableSymbolTableItem.setName(variableSymbolTableItem.getName() + "^");
+            variableSymbolTableItem.setName
+                    (variableSymbolTableItem.getName() + "^".repeat(Math.max(0, errors.size() + 10)));
         } catch (ItemNotFoundException ignored) {
         }
 
@@ -142,14 +144,16 @@ public class NameAnalyzer extends Visitor<Void> {
         } catch (ItemAlreadyExistsException e) {
             this.errors.add(new DuplicateVar
                     (variableDeclaration.getLine(), variableDeclaration.getVarName().getName()));
-            variableSymbolTableItem.setName(variableSymbolTableItem.getName() + "^");
+            variableSymbolTableItem.setName
+                    (variableSymbolTableItem.getName() + "^".repeat(Math.max(0, errors.size() + 10)));
         }
 
         try {
             SymbolTable.root.getItem("Struct_" + variableDeclaration.getVarName().getName());
             this.errors.add(new VarStructConflict
                     (variableDeclaration.getLine(), variableDeclaration.getVarName().getName()));
-            variableSymbolTableItem.setName(variableSymbolTableItem.getName() + "^");
+            variableSymbolTableItem.setName
+                    (variableSymbolTableItem.getName() + "^".repeat(Math.max(0, errors.size() + 10)));
         } catch (ItemNotFoundException ignored) {
         }
 
@@ -157,7 +161,8 @@ public class NameAnalyzer extends Visitor<Void> {
             SymbolTable.root.getItem("Function_" + variableDeclaration.getVarName().getName());
             this.errors.add(new VarFunctionConflict
                     (variableDeclaration.getLine(), variableDeclaration.getVarName().getName()));
-            variableSymbolTableItem.setName(variableSymbolTableItem.getName() + "^");
+            variableSymbolTableItem.setName
+                    (variableSymbolTableItem.getName() + "^".repeat(Math.max(0, errors.size() + 10)));
         } catch (ItemNotFoundException ignored) {
         }
 
@@ -179,18 +184,24 @@ public class NameAnalyzer extends Visitor<Void> {
         StructSymbolTableItem structSymbolTableItem = new StructSymbolTableItem(structDeclaration);
         try {
             SymbolTable.root.put(structSymbolTableItem);
+            structsDecs.add(structDeclaration);
+            structsName.add("StructType_" + structSymbolTableItem.getName());
         } catch (ItemAlreadyExistsException e) {
             this.errors.add(new DuplicateStruct
                     (structDeclaration.getLine(), structDeclaration.getStructName().getName()));
+            structSymbolTableItem.setName
+                    (structSymbolTableItem.getName() + "^".repeat(Math.max(0, errors.size() + 10)));
+            structsDecs.add(structDeclaration);
+            structsName.add("StructType_" + structSymbolTableItem.getName());
+            try {
+                SymbolTable.root.put(structSymbolTableItem);
+            } catch (ItemAlreadyExistsException ignored) {}
         }
 
         SymbolTable symbolTable = new SymbolTable();
         symbolTable.pre = SymbolTable.root;
         structSymbolTableItem.setStructSymbolTable(symbolTable);
         SymbolTable.push(symbolTable);
-
-        structsDecs.add(structDeclaration);
-        structsName.add("StructType_" + structDeclaration.getStructName().getName());
 
         if (structDeclaration.getStructName() != null)
             structDeclaration.getStructName().accept(this);
