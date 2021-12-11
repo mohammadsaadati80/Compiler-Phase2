@@ -1,0 +1,7 @@
+Line 1: Program
+Line 1: MainDeclaration
+Line 1: BlockStmt
+Line 2: FunctionCallStmt
+Line 2: FunctionCall
+Line 2: FunctionCall
+Line 2: Identifier_a

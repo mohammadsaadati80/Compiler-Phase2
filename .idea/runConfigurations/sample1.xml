@@ -6,6 +6,15 @@
     <option name="PROGRAM_PARAMETERS" value="samples\sample1.cmm" />
     <method v="2">
       <option name="Make" enabled="true" />
+      <option name="RunConfigurationTask" enabled="true" run_configuration_name="sample2" run_configuration_type="Application" />
+      <option name="RunConfigurationTask" enabled="true" run_configuration_name="sample3" run_configuration_type="Application" />
+      <option name="RunConfigurationTask" enabled="true" run_configuration_name="sample18" run_configuration_type="Application" />
+      <option name="RunConfigurationTask" enabled="true" run_configuration_name="sample37" run_configuration_type="Application" />
+      <option name="RunConfigurationTask" enabled="true" run_configuration_name="sample45" run_configuration_type="Application" />
+      <option name="RunConfigurationTask" enabled="true" run_configuration_name="sample46" run_configuration_type="Application" />
+      <option name="RunConfigurationTask" enabled="true" run_configuration_name="sample49" run_configuration_type="Application" />
+      <option name="RunConfigurationTask" enabled="true" run_configuration_name="sample50" run_configuration_type="Application" />
+      <option name="RunConfigurationTask" enabled="true" run_configuration_name="sample57" run_configuration_type="Application" />
     </method>
   </configuration>
 </component>

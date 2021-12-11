@@ -1,0 +1,4 @@
+Line 9: Variable jj is already declared
+Line 16: Variable kk is already declared
+Line 9: Variable ii is already declared
+Line 15: Variable jj is already declared

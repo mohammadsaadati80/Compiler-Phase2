@@ -1,0 +1,6 @@
+Line 2: Name of variable compiler conflicts with a function's name
+Line 6: Name of variable compiler conflicts with a function's name
+Line 14: Name of variable compiler conflicts with a function's name
+Line 14: Name of variable os conflicts with a function's name
+Line 20: Name of variable compiler conflicts with a function's name
+Line 21: Name of variable os conflicts with a function's name

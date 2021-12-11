@@ -1,0 +1,20 @@
+struct sts
+    bool s
+
+
+struct aba
+    int kk
+
+int func(bool sts, struct sts m) begin
+    int aba
+end
+
+bool ff() begin
+    bool aba
+    int kk
+    return aba
+    int sts
+end
+
+main()
+    int sts

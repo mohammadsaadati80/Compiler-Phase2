@@ -1,0 +1,4 @@
+Line 11: Name of variable three conflicts with a struct’s name
+Line 14: Name of variable two conflicts with a struct’s name
+Line 2: Name of variable two conflicts with a struct’s name
+Line 2: Name of variable one conflicts with a struct’s name
