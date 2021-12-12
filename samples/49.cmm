@@ -1,0 +1,25 @@
+struct ce
+    int compiler, var
+
+
+struct cs
+    bool var(int compiler) begin
+        set
+            int compiler
+        get
+            return compiler
+    end
+
+
+int compiler(bool compiler, int os) begin
+    return compiler
+end
+
+bool os() begin
+    if true
+        int compiler
+    bool os
+end
+
+main()
+    return

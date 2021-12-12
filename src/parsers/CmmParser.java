@@ -2591,7 +2591,7 @@ public class CmmParser extends Parser {
 				((ExpressionContext)_localctx).op = match(ASSIGN);
 				setState(497);
 				((ExpressionContext)_localctx).exp2 = expression();
-				((ExpressionContext)_localctx).expRet =  new BinaryExpression(((ExpressionContext)_localctx).exp1.exp,((ExpressionContext)_localctx).exp2.expRet,BinaryOperator.assign);
+				((ExpressionContext)_localctx).expRet =  new BinaryExpression(_localctx.expRet,((ExpressionContext)_localctx).exp2.expRet,BinaryOperator.assign);
 				    _localctx.expRet.setLine(((ExpressionContext)_localctx).op.getLine());
 				}
 			}
@@ -2663,7 +2663,7 @@ public class CmmParser extends Parser {
 				((OrExpressionContext)_localctx).op = match(OR);
 				setState(505);
 				((OrExpressionContext)_localctx).exp2 = andExpression();
-				((OrExpressionContext)_localctx).exp =  new BinaryExpression(((OrExpressionContext)_localctx).exp1.exp,((OrExpressionContext)_localctx).exp2.exp,BinaryOperator.or);
+				((OrExpressionContext)_localctx).exp =  new BinaryExpression(_localctx.exp,((OrExpressionContext)_localctx).exp2.exp,BinaryOperator.or);
 				    _localctx.exp.setLine(((OrExpressionContext)_localctx).op.getLine());
 				}
 				}
@@ -2738,7 +2738,7 @@ public class CmmParser extends Parser {
 				((AndExpressionContext)_localctx).op = match(AND);
 				setState(516);
 				((AndExpressionContext)_localctx).exp2 = equalityExpression();
-				((AndExpressionContext)_localctx).exp =  new BinaryExpression(((AndExpressionContext)_localctx).exp1.exp,((AndExpressionContext)_localctx).exp2.exp,BinaryOperator.and);
+				((AndExpressionContext)_localctx).exp =  new BinaryExpression(_localctx.exp,((AndExpressionContext)_localctx).exp2.exp,BinaryOperator.and);
 				    _localctx.exp.setLine(((AndExpressionContext)_localctx).op.getLine());
 				}
 				}
@@ -2813,7 +2813,7 @@ public class CmmParser extends Parser {
 				((EqualityExpressionContext)_localctx).op = match(EQUAL);
 				setState(527);
 				((EqualityExpressionContext)_localctx).exp2 = relationalExpression();
-				((EqualityExpressionContext)_localctx).exp =  new BinaryExpression(((EqualityExpressionContext)_localctx).exp1.exp,((EqualityExpressionContext)_localctx).exp2.exp,BinaryOperator.eq);
+				((EqualityExpressionContext)_localctx).exp =  new BinaryExpression(_localctx.exp,((EqualityExpressionContext)_localctx).exp2.exp,BinaryOperator.eq);
 				    _localctx.exp.setLine(((EqualityExpressionContext)_localctx).op.getLine());
 				}
 				}
@@ -2911,7 +2911,7 @@ public class CmmParser extends Parser {
 				}
 				setState(543);
 				((RelationalExpressionContext)_localctx).exp2 = additiveExpression();
-				((RelationalExpressionContext)_localctx).exp =  new BinaryExpression(((RelationalExpressionContext)_localctx).exp1.exp,((RelationalExpressionContext)_localctx).exp2.exp,_localctx.op); _localctx.exp.setLine(((RelationalExpressionContext)_localctx).ll.getLine());
+				((RelationalExpressionContext)_localctx).exp =  new BinaryExpression(_localctx.exp,((RelationalExpressionContext)_localctx).exp2.exp,_localctx.op); _localctx.exp.setLine(((RelationalExpressionContext)_localctx).ll.getLine());
 				}
 				}
 				setState(550);
@@ -3008,7 +3008,7 @@ public class CmmParser extends Parser {
 				}
 				setState(559);
 				((AdditiveExpressionContext)_localctx).exp2 = multiplicativeExpression();
-				((AdditiveExpressionContext)_localctx).exp =  new BinaryExpression(((AdditiveExpressionContext)_localctx).exp1.exp,((AdditiveExpressionContext)_localctx).exp2.exp,_localctx.op); _localctx.exp.setLine(((AdditiveExpressionContext)_localctx).ll.getLine());
+				((AdditiveExpressionContext)_localctx).exp =  new BinaryExpression(_localctx.exp,((AdditiveExpressionContext)_localctx).exp2.exp,_localctx.op); _localctx.exp.setLine(((AdditiveExpressionContext)_localctx).ll.getLine());
 				}
 				}
 				setState(566);
@@ -3105,7 +3105,7 @@ public class CmmParser extends Parser {
 				}
 				setState(575);
 				((MultiplicativeExpressionContext)_localctx).exp2 = preUnaryExpression();
-				((MultiplicativeExpressionContext)_localctx).exp =  new BinaryExpression(((MultiplicativeExpressionContext)_localctx).exp1.expRet,((MultiplicativeExpressionContext)_localctx).exp2.expRet,_localctx.op); _localctx.exp.setLine(((MultiplicativeExpressionContext)_localctx).ll.getLine());
+				((MultiplicativeExpressionContext)_localctx).exp =  new BinaryExpression(_localctx.exp,((MultiplicativeExpressionContext)_localctx).exp2.expRet,_localctx.op); _localctx.exp.setLine(((MultiplicativeExpressionContext)_localctx).ll.getLine());
 				}
 				}
 				setState(582);
@@ -3193,7 +3193,7 @@ public class CmmParser extends Parser {
 				setState(589);
 				((PreUnaryExpressionContext)_localctx).e = preUnaryExpression();
 				}
-				((PreUnaryExpressionContext)_localctx).expRet =  new UnaryExpression(((PreUnaryExpressionContext)_localctx).e.expRet,_localctx.op); _localctx.expRet.setLine(((PreUnaryExpressionContext)_localctx).ll.getLine());
+				((PreUnaryExpressionContext)_localctx).expRet =  new UnaryExpression(_localctx.expRet,_localctx.op); _localctx.expRet.setLine(((PreUnaryExpressionContext)_localctx).ll.getLine());
 				}
 				break;
 			case SIZE:

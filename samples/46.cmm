@@ -1,0 +1,18 @@
+struct one begin
+    int jv(int one, bool two) begin
+        set
+            int one
+        get
+            int one
+    end
+end
+
+struct two
+    int three
+
+struct three begin
+    struct two two
+end
+
+main()
+    display(three)

@@ -180,42 +180,42 @@ singleStatement returns[Statement stm]:
 
 expression returns[Expression expRet]:
     exp1 = orExpression {$expRet = $exp1.exp;}
-    (op = ASSIGN exp2 = expression {$expRet = new BinaryExpression($exp1.exp,$exp2.expRet,BinaryOperator.assign);
+    (op = ASSIGN exp2 = expression {$expRet = new BinaryExpression($expRet,$exp2.expRet,BinaryOperator.assign);
     $expRet.setLine($op.getLine());})?;
 
 orExpression returns[Expression exp]:
     exp1 = andExpression {$exp = $exp1.exp;}
-    (op = OR exp2 = andExpression {$exp = new BinaryExpression($exp1.exp,$exp2.exp,BinaryOperator.or);
+    (op = OR exp2 = andExpression {$exp = new BinaryExpression($exp,$exp2.exp,BinaryOperator.or);
     $exp.setLine($op.getLine());})*;
 
 andExpression returns[Expression exp]:
     exp1 = equalityExpression {$exp = $exp1.exp;}
-    (op = AND exp2 = equalityExpression {$exp = new BinaryExpression($exp1.exp,$exp2.exp,BinaryOperator.and);
+    (op = AND exp2 = equalityExpression {$exp = new BinaryExpression($exp,$exp2.exp,BinaryOperator.and);
     $exp.setLine($op.getLine());})*;
 
 equalityExpression returns[Expression exp]:
     exp1 = relationalExpression {$exp = $exp1.exp;}
-    (op = EQUAL exp2 = relationalExpression {$exp = new BinaryExpression($exp1.exp,$exp2.exp,BinaryOperator.eq);
+    (op = EQUAL exp2 = relationalExpression {$exp = new BinaryExpression($exp,$exp2.exp,BinaryOperator.eq);
     $exp.setLine($op.getLine());})*;
 
 relationalExpression returns[Expression exp] locals[BinaryOperator op]:
     exp1 = additiveExpression {$exp = $exp1.exp;}
     ((ll = GREATER_THAN {$op = BinaryOperator.gt;} | ll = LESS_THAN {$op = BinaryOperator.lt;}) exp2 = additiveExpression
-    {$exp = new BinaryExpression($exp1.exp,$exp2.exp,$op); $exp.setLine($ll.getLine());})*;
+    {$exp = new BinaryExpression($exp,$exp2.exp,$op); $exp.setLine($ll.getLine());})*;
 
 additiveExpression returns[Expression exp] locals[BinaryOperator op]:
     exp1 = multiplicativeExpression {$exp = $exp1.exp;}
     ((ll = PLUS {$op = BinaryOperator.add;} | ll = MINUS {$op = BinaryOperator.sub;}) exp2 = multiplicativeExpression
-    {$exp = new BinaryExpression($exp1.exp,$exp2.exp,$op); $exp.setLine($ll.getLine());})*;
+    {$exp = new BinaryExpression($exp,$exp2.exp,$op); $exp.setLine($ll.getLine());})*;
 
 multiplicativeExpression returns[Expression exp]  locals[BinaryOperator op]:
     exp1 = preUnaryExpression {$exp = $exp1.expRet;}
     ((ll = MULT {$op = BinaryOperator.mult;} | ll = DIVIDE {$op = BinaryOperator.div;}) exp2 = preUnaryExpression
-    {$exp = new BinaryExpression($exp1.expRet,$exp2.expRet,$op); $exp.setLine($ll.getLine());})*;
+    {$exp = new BinaryExpression($exp,$exp2.expRet,$op); $exp.setLine($ll.getLine());})*;
 
 preUnaryExpression returns[Expression expRet] locals[UnaryOperator op]:
     ((ll = NOT {$op = UnaryOperator.not;} | ll = MINUS {$op = UnaryOperator.minus;}) e = preUnaryExpression)
-    {$expRet = new UnaryExpression($e.expRet,$op); $expRet.setLine($ll.getLine());}
+    {$expRet = new UnaryExpression($expRet,$op); $expRet.setLine($ll.getLine());}
     | ae = accessExpression {$expRet = $ae.expRet;};
 
 accessExpression returns[Expression expRet]:

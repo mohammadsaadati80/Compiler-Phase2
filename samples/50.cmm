@@ -1,0 +1,20 @@
+int newFunc()
+    int fname, lname
+
+int nn() begin
+    int fname
+    if true
+        int lname
+    else
+        int lname
+end
+
+bool fname()
+    return 2
+
+void lname()
+    int lname
+
+
+main()
+    return

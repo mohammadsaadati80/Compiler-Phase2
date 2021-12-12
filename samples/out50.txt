@@ -1,0 +1,6 @@
+Line 7: Name of variable lname conflicts with a function’s name
+Line 2: Name of variable fname conflicts with a function’s name
+Line 2: Name of variable lname conflicts with a function’s name
+Line 16: Name of variable lname conflicts with a function’s name
+Line 5: Name of variable fname conflicts with a function’s name
+Line 9: Name of variable lname conflicts with a function’s name

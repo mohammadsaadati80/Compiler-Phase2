@@ -1,0 +1,5 @@
+Line 8: Name of variable sts conflicts with a struct's name
+Line 9: Name of variable aba conflicts with a struct's name
+Line 13: Name of variable aba conflicts with a struct's name
+Line 16: Name of variable sts conflicts with a struct's name
+Line 20: Name of variable sts conflicts with a struct's name

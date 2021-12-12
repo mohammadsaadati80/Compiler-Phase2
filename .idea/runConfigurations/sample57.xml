@@ -1,0 +1,11 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="sample57" type="Application" factoryName="Application">
+    <output_file path="$PROJECT_DIR$/samples/out57.txt" is_save="true" />
+    <option name="MAIN_CLASS_NAME" value="main.Cmm" />
+    <module name="PLC_P2" />
+    <option name="PROGRAM_PARAMETERS" value="samples\57.cmm" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>
